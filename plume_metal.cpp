@@ -2203,7 +2203,6 @@ namespace plume {
                 needsUpdate = i >= stateCache.lastVertexBuffers.size() || interfaceBuffer->mtl != stateCache.lastVertexBuffers[i] || newOffset != stateCache.lastVertexBufferOffsets[i] || newIndex != stateCache.lastVertexBufferIndices[i];
 
                 vertexBuffers[i] = interfaceBuffer->mtl;
-                vertexBuffers[i]->retain();
                 vertexBufferOffsets[i] = newOffset;
                 vertexBufferIndices[i] = newIndex;
             }
