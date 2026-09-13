@@ -63,7 +63,7 @@ namespace plume {
         void *map(uint32_t subresource, const RenderRange *readRange) override;
         void unmap(uint32_t subresource, const RenderRange *writtenRange) override;
         std::unique_ptr<RenderBufferFormattedView> createBufferFormattedView(RenderFormat format) override;
-        void setName(const std::string &name) override;
+        void setName(const char *name) override;
         uint64_t getDeviceAddress() const override;
     };
 
@@ -95,7 +95,7 @@ namespace plume {
         ~VulkanTexture() override;
         void createImageView(VkFormat format);
         std::unique_ptr<RenderTextureView> createTextureView(const RenderTextureViewDesc &desc) const override;
-        void setName(const std::string &name) override;
+        void setName(const char *name) override;
         void fillSubresourceRange();
     };
 
@@ -146,7 +146,7 @@ namespace plume {
 
         VulkanShader(VulkanDevice *device, const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format);
         ~VulkanShader() override;
-        virtual void setName(const std::string &name) override;
+        virtual void setName(const char *name) override;
     };
 
     struct VulkanSampler : RenderSampler {
@@ -178,8 +178,8 @@ namespace plume {
 
         VulkanComputePipeline(VulkanDevice *device, const RenderComputePipelineDesc &desc);
         ~VulkanComputePipeline() override;
-        void setName(const std::string &name) override;
-        RenderPipelineProgram getProgram(const std::string &name) const override;
+        void setName(const char *name) override;
+        RenderPipelineProgram getProgram(const char *name) const override;
     };
 
     struct VulkanGraphicsPipeline : VulkanPipeline {
@@ -188,8 +188,8 @@ namespace plume {
 
         VulkanGraphicsPipeline(VulkanDevice *device, const RenderGraphicsPipelineDesc &desc);
         ~VulkanGraphicsPipeline() override;
-        void setName(const std::string &name) override;
-        RenderPipelineProgram getProgram(const std::string &name) const override;
+        void setName(const char *name) override;
+        RenderPipelineProgram getProgram(const char *name) const override;
         static VkRenderPass createRenderPass(VulkanDevice *device, const VkFormat *renderTargetFormat, uint32_t renderTargetCount, VkFormat depthTargetFormat, VkSampleCountFlagBits sampleCount);
     };
 
@@ -201,8 +201,8 @@ namespace plume {
 
         VulkanRaytracingPipeline(VulkanDevice *device, const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline);
         ~VulkanRaytracingPipeline() override;
-        void setName(const std::string &name) override;
-        RenderPipelineProgram getProgram(const std::string &name) const override;
+        void setName(const char *name) override;
+        RenderPipelineProgram getProgram(const char *name) const override;
     };
 
     struct VulkanDescriptorSet : RenderDescriptorSet {
@@ -418,7 +418,7 @@ namespace plume {
         bool loadStoreOpNoneSupported = false;
         bool nullDescriptorSupported = false;
 
-        VulkanDevice(VulkanInterface *renderInterface, const std::string &preferredDeviceName);
+        VulkanDevice(VulkanInterface *renderInterface, const char *preferredDeviceName);
         ~VulkanDevice() override;
         std::unique_ptr<RenderDescriptorSet> createDescriptorSet(const RenderDescriptorSetDesc &desc) override;
         std::unique_ptr<RenderShader> createShader(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) override;
@@ -461,7 +461,7 @@ namespace plume {
 #   endif
 
         ~VulkanInterface() override;
-        std::unique_ptr<RenderDevice> createDevice(const std::string &preferredDeviceName) override;
+        std::unique_ptr<RenderDevice> createDevice(const char *preferredDeviceName) override;
         const RenderInterfaceCapabilities &getCapabilities() const override;
         const std::vector<std::string> &getDeviceNames() const override;
         bool isValid() const;

@@ -282,7 +282,7 @@ namespace plume {
         void *map(uint32_t subresource, const RenderRange *readRange) override;
         void unmap(uint32_t subresource, const RenderRange *writtenRange) override;
         std::unique_ptr<RenderBufferFormattedView> createBufferFormattedView(RenderFormat format) override;
-        void setName(const std::string &name) override;
+        void setName(const char *name) override;
         uint64_t getDeviceAddress() const override;
     };
 
@@ -307,7 +307,7 @@ namespace plume {
         D3D12Texture(D3D12Device *device, D3D12Pool *pool, const RenderTextureDesc &desc);
         ~D3D12Texture() override;
         std::unique_ptr<RenderTextureView> createTextureView(const RenderTextureViewDesc &desc) const override;
-        void setName(const std::string &name) override;
+        void setName(const char *name) override;
     };
 
     struct D3D12TextureView : RenderTextureView {
@@ -355,7 +355,7 @@ namespace plume {
 
         D3D12Shader(D3D12Device *device, const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format);
         ~D3D12Shader() override;
-        virtual void setName(const std::string &name) override;
+        virtual void setName(const char *name) override;
     };
 
     struct D3D12Sampler : RenderSampler {
@@ -388,8 +388,8 @@ namespace plume {
 
         D3D12ComputePipeline(D3D12Device *device, const RenderComputePipelineDesc &desc);
         ~D3D12ComputePipeline() override;
-        virtual void setName(const std::string &name) override;
-        virtual RenderPipelineProgram getProgram(const std::string &name) const override;
+        virtual void setName(const char *name) override;
+        virtual RenderPipelineProgram getProgram(const char *name) const override;
     };
 
     struct D3D12GraphicsPipeline : D3D12Pipeline {
@@ -400,8 +400,8 @@ namespace plume {
 
         D3D12GraphicsPipeline(D3D12Device *device, const RenderGraphicsPipelineDesc &desc);
         ~D3D12GraphicsPipeline() override;
-        virtual void setName(const std::string &name) override;
-        virtual RenderPipelineProgram getProgram(const std::string &name) const override;
+        virtual void setName(const char *name) override;
+        virtual RenderPipelineProgram getProgram(const char *name) const override;
     };
 
     struct D3D12RaytracingPipeline : D3D12Pipeline {
@@ -413,8 +413,8 @@ namespace plume {
 
         D3D12RaytracingPipeline(D3D12Device *device, const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline);
         ~D3D12RaytracingPipeline() override;
-        virtual void setName(const std::string &name) override;
-        virtual RenderPipelineProgram getProgram(const std::string &name) const override;
+        virtual void setName(const char *name) override;
+        virtual RenderPipelineProgram getProgram(const char *name) const override;
     };
 
     struct D3D12PipelineLayout : RenderPipelineLayout {
@@ -449,7 +449,7 @@ namespace plume {
         uint64_t timestampFrequency = 1;
         bool gpuUploadHeapFallback = false;
 
-        D3D12Device(D3D12Interface *renderInterface, const std::string &preferredDeviceName);
+        D3D12Device(D3D12Interface *renderInterface, const char *preferredDeviceName);
         ~D3D12Device() override;
         std::unique_ptr<RenderDescriptorSet> createDescriptorSet(const RenderDescriptorSetDesc &desc) override;
         std::unique_ptr<RenderShader> createShader(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) override;
@@ -487,7 +487,7 @@ namespace plume {
 
         D3D12Interface();
         ~D3D12Interface() override;
-        std::unique_ptr<RenderDevice> createDevice(const std::string &preferredDeviceName) override;
+        std::unique_ptr<RenderDevice> createDevice(const char *preferredDeviceName) override;
         const RenderInterfaceCapabilities &getCapabilities() const override;
         const std::vector<std::string> &getDeviceNames() const override;
         bool isValid() const;

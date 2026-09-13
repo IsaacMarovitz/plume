@@ -1172,9 +1172,9 @@ namespace plume {
         return std::make_unique<MetalBufferFormattedView>(this, format);
     }
 
-    void MetalBuffer::setName(const std::string &name) {
+    void MetalBuffer::setName(const char *name) {
         MetalAutoreleasePool releasePool;
-        const NS::String *label = NS::String::string(name.c_str(), NS::UTF8StringEncoding);
+        const NS::String *label = NS::String::string(name, NS::UTF8StringEncoding);
         mtl->setLabel(label);
     }
 
@@ -1260,9 +1260,9 @@ namespace plume {
         return std::make_unique<MetalTextureView>(this, desc);
     }
 
-    void MetalTexture::setName(const std::string &name) {
+    void MetalTexture::setName(const char *name) {
         MetalAutoreleasePool releasePool;
-        mtl->setLabel(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
+        mtl->setLabel(NS::String::string(name, NS::UTF8StringEncoding));
     }
 
     // MetalTextureView
@@ -1361,13 +1361,13 @@ namespace plume {
         }
     }
 
-    void MetalShader::setName(const std::string &name) {
+    void MetalShader::setName(const char *name) {
         MetalAutoreleasePool releasePool;
         if (debugName != nullptr) {
             debugName->release();
         }
 
-        debugName = NS::String::string(name.c_str(), NS::UTF8StringEncoding);
+        debugName = NS::String::string(name, NS::UTF8StringEncoding);
         debugName->retain();
 
         library->setLabel(debugName);
@@ -1478,11 +1478,11 @@ namespace plume {
         }
     }
 
-    void MetalComputePipeline::setName(const std::string &name) {
+    void MetalComputePipeline::setName(const char *name) {
         // TODO: New - setting name happens at descriptor level - this would have to be reworked
     }
 
-    RenderPipelineProgram MetalComputePipeline::getProgram(const std::string &name) const {
+    RenderPipelineProgram MetalComputePipeline::getProgram(const char *name) const {
         assert(false && "Compute pipelines can't retrieve shader programs.");
         return RenderPipelineProgram();
     }
@@ -1648,11 +1648,11 @@ namespace plume {
         }
     }
 
-    void MetalGraphicsPipeline::setName(const std::string &name) {
+    void MetalGraphicsPipeline::setName(const char *name) {
         // TODO: New - setting name happens at descriptor level - this would have to be reworked
     }
 
-    RenderPipelineProgram MetalGraphicsPipeline::getProgram(const std::string &name) const {
+    RenderPipelineProgram MetalGraphicsPipeline::getProgram(const char *name) const {
         assert(false && "Graphics pipelines can't retrieve shader programs.");
         return RenderPipelineProgram();
     }
@@ -1897,9 +1897,9 @@ namespace plume {
         return nullptr;
     }
 
-    void MetalDrawable::setName(const std::string &name) {
+    void MetalDrawable::setName(const char *name) {
         MetalAutoreleasePool releasePool;
-        mtl->texture()->setLabel(NS::String::string(name.c_str(), NS::UTF8StringEncoding));
+        mtl->texture()->setLabel(NS::String::string(name, NS::UTF8StringEncoding));
     }
 
     // MetalSwapChain
@@ -3772,7 +3772,7 @@ namespace plume {
 
     // MetalDevice
 
-    MetalDevice::MetalDevice(MetalInterface *renderInterface, const std::string &preferredDeviceName) {
+    MetalDevice::MetalDevice(MetalInterface *renderInterface, const char *preferredDeviceName) {
         assert(renderInterface != nullptr);
 
         MetalAutoreleasePool releasePool;
@@ -3783,7 +3783,7 @@ namespace plume {
         MTL::Device *preferredDevice = nullptr;
         for (NS::UInteger i = 0; i < devices->count(); i++) {
             MTL::Device *device = (MTL::Device *)devices->object(i);
-            const NS::String *preferredDeviceNameNS = NS::String::string(preferredDeviceName.c_str(), NS::UTF8StringEncoding);
+            const NS::String *preferredDeviceNameNS = NS::String::string(preferredDeviceName, NS::UTF8StringEncoding);
             if (device->name()->isEqualToString(preferredDeviceNameNS)) {
                 preferredDevice = device;
                 break;
@@ -4203,7 +4203,7 @@ namespace plume {
     MetalInterface::~MetalInterface() {}
 
     // TODO: NEW - Incorporate preferredDeviceName (new)
-    std::unique_ptr<RenderDevice> MetalInterface::createDevice(const std::string &preferredDeviceName) {
+    std::unique_ptr<RenderDevice> MetalInterface::createDevice(const char *preferredDeviceName) {
         std::unique_ptr<MetalDevice> createdDevice = std::make_unique<MetalDevice>(this, preferredDeviceName);
         return createdDevice->isValid() ? std::move(createdDevice) : nullptr;
     }
