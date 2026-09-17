@@ -63,7 +63,7 @@ namespace plume {
         ~VulkanBuffer() override;
         void *map(uint32_t subresource, const RenderRange *readRange) override;
         void unmap(uint32_t subresource, const RenderRange *writtenRange) override;
-        std::unique_ptr<RenderBufferFormattedView> createBufferFormattedView(RenderFormat format) override;
+        RenderBufferFormattedView *createBufferFormattedViewRaw(RenderFormat format) override;
         void setName(const char *name) override;
         uint64_t getDeviceAddress() const override;
     };
@@ -95,7 +95,7 @@ namespace plume {
         VulkanTexture(VulkanDevice *device, VkImage image);
         ~VulkanTexture() override;
         void createImageView(VkFormat format);
-        std::unique_ptr<RenderTextureView> createTextureView(const RenderTextureViewDesc &desc) const override;
+        RenderTextureView *createTextureViewRaw(const RenderTextureViewDesc &desc) const override;
         void setName(const char *name) override;
         void fillSubresourceRange();
     };
@@ -374,8 +374,8 @@ namespace plume {
 
         VulkanCommandQueue(VulkanDevice *device, RenderCommandListType type);
         ~VulkanCommandQueue() override;
-        std::unique_ptr<RenderCommandList> createCommandList() override;
-        std::unique_ptr<RenderSwapChain> createSwapChain(const RenderSwapChainDesc &desc) override;
+        RenderCommandList *createCommandListRaw() override;
+        RenderSwapChain *createSwapChainRaw(const RenderSwapChainDesc &desc) override;
         void executeCommandLists(const RenderCommandList **commandLists, uint32_t commandListCount, RenderCommandSemaphore **waitSemaphores, uint32_t waitSemaphoreCount, RenderCommandSemaphore **signalSemaphores, uint32_t signalSemaphoreCount, RenderCommandFence *signalFence) override;
         void waitForCommandFence(RenderCommandFence *fence) override;
     };
@@ -386,8 +386,8 @@ namespace plume {
 
         VulkanPool(VulkanDevice *device, const RenderPoolDesc &desc);
         ~VulkanPool() override;
-        std::unique_ptr<RenderBuffer> createBuffer(const RenderBufferDesc &desc) override;
-        std::unique_ptr<RenderTexture> createTexture(const RenderTextureDesc &desc) override;
+        RenderBuffer *createBufferRaw(const RenderBufferDesc &desc) override;
+        RenderTexture *createTextureRaw(const RenderTextureDesc &desc) override;
     };
     
     struct VulkanQueue {
@@ -421,22 +421,22 @@ namespace plume {
 
         VulkanDevice(VulkanInterface *renderInterface, const char *preferredDeviceName);
         ~VulkanDevice() override;
-        std::unique_ptr<RenderDescriptorSet> createDescriptorSet(const RenderDescriptorSetDesc &desc) override;
-        std::unique_ptr<RenderShader> createShader(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) override;
-        std::unique_ptr<RenderSampler> createSampler(const RenderSamplerDesc &desc) override;
-        std::unique_ptr<RenderPipeline> createComputePipeline(const RenderComputePipelineDesc &desc) override;
-        std::unique_ptr<RenderPipeline> createGraphicsPipeline(const RenderGraphicsPipelineDesc &desc) override;
-        std::unique_ptr<RenderPipeline> createRaytracingPipeline(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) override;
-        std::unique_ptr<RenderCommandQueue> createCommandQueue(RenderCommandListType type) override;
-        std::unique_ptr<RenderBuffer> createBuffer(const RenderBufferDesc &desc) override;
-        std::unique_ptr<RenderTexture> createTexture(const RenderTextureDesc &desc) override;
-        std::unique_ptr<RenderAccelerationStructure> createAccelerationStructure(const RenderAccelerationStructureDesc &desc) override;
-        std::unique_ptr<RenderPool> createPool(const RenderPoolDesc &desc) override;
-        std::unique_ptr<RenderPipelineLayout> createPipelineLayout(const RenderPipelineLayoutDesc &desc) override;
-        std::unique_ptr<RenderCommandFence> createCommandFence() override;
-        std::unique_ptr<RenderCommandSemaphore> createCommandSemaphore() override;
-        std::unique_ptr<RenderFramebuffer> createFramebuffer(const RenderFramebufferDesc &desc) override;
-        std::unique_ptr<RenderQueryPool> createQueryPool(uint32_t queryCount) override;
+        RenderDescriptorSet *createDescriptorSetRaw(const RenderDescriptorSetDesc &desc) override;
+        RenderShader *createShaderRaw(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) override;
+        RenderSampler *createSamplerRaw(const RenderSamplerDesc &desc) override;
+        RenderPipeline *createComputePipelineRaw(const RenderComputePipelineDesc &desc) override;
+        RenderPipeline *createGraphicsPipelineRaw(const RenderGraphicsPipelineDesc &desc) override;
+        RenderPipeline *createRaytracingPipelineRaw(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) override;
+        RenderCommandQueue *createCommandQueueRaw(RenderCommandListType type) override;
+        RenderBuffer *createBufferRaw(const RenderBufferDesc &desc) override;
+        RenderTexture *createTextureRaw(const RenderTextureDesc &desc) override;
+        RenderAccelerationStructure *createAccelerationStructureRaw(const RenderAccelerationStructureDesc &desc) override;
+        RenderPool *createPoolRaw(const RenderPoolDesc &desc) override;
+        RenderPipelineLayout *createPipelineLayoutRaw(const RenderPipelineLayoutDesc &desc) override;
+        RenderCommandFence *createCommandFenceRaw() override;
+        RenderCommandSemaphore *createCommandSemaphoreRaw() override;
+        RenderFramebuffer *createFramebufferRaw(const RenderFramebufferDesc &desc) override;
+        RenderQueryPool *createQueryPoolRaw(uint32_t queryCount) override;
         void setBottomLevelASBuildInfo(RenderBottomLevelASBuildInfo &buildInfo, const RenderBottomLevelASMesh *meshes, uint32_t meshCount, bool preferFastBuild, bool preferFastTrace) override;
         void setTopLevelASBuildInfo(RenderTopLevelASBuildInfo &buildInfo, const RenderTopLevelASInstance *instances, uint32_t instanceCount, bool preferFastBuild, bool preferFastTrace) override;
         void setShaderBindingTableInfo(RenderShaderBindingTableInfo &tableInfo, const RenderShaderBindingGroups &groups, const RenderPipeline *pipeline, RenderDescriptorSet **descriptorSets, uint32_t descriptorSetCount) override;
@@ -462,7 +462,7 @@ namespace plume {
 #   endif
 
         ~VulkanInterface() override;
-        std::unique_ptr<RenderDevice> createDevice(const char *preferredDeviceName) override;
+        RenderDevice *createDeviceRaw(const char *preferredDeviceName) override;
         const RenderInterfaceCapabilities &getCapabilities() const override;
         uint32_t getDeviceCount() const override;
         const char *getDeviceName(uint32_t index) const override;

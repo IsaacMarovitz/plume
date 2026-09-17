@@ -9,7 +9,6 @@
 
 #include <cassert>
 #include <list>
-#include <memory>
 #include <vector>
 #include <cfloat>
 #include <cstdint>

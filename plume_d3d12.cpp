@@ -7,6 +7,7 @@
 
 #include "plume_d3d12.h"
 
+#include <memory>
 #include <unordered_set>
 
 #include <dxgi1_5.h>
@@ -2668,12 +2669,12 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderCommandList> D3D12CommandQueue::createCommandList() {
-        return std::make_unique<D3D12CommandList>(this);
+    RenderCommandList *D3D12CommandQueue::createCommandListRaw() {
+        return new D3D12CommandList(this);
     }
 
-    std::unique_ptr<RenderSwapChain> D3D12CommandQueue::createSwapChain(const RenderSwapChainDesc &desc) {
-        return std::make_unique<D3D12SwapChain>(this, desc);
+    RenderSwapChain *D3D12CommandQueue::createSwapChainRaw(const RenderSwapChainDesc &desc) {
+        return new D3D12SwapChain(this, desc);
     }
 
     void D3D12CommandQueue::executeCommandLists(const RenderCommandList **commandLists, uint32_t commandListCount, RenderCommandSemaphore **waitSemaphores, uint32_t waitSemaphoreCount, RenderCommandSemaphore **signalSemaphores, uint32_t signalSemaphoreCount, RenderCommandFence *signalFence) {
@@ -2796,8 +2797,8 @@ namespace plume {
         d3d->Unmap(subresource, (writtenRange != nullptr) ? &range : nullptr);
     }
 
-    std::unique_ptr<RenderBufferFormattedView> D3D12Buffer::createBufferFormattedView(RenderFormat format) {
-        return std::make_unique<D3D12BufferFormattedView>(this, format);
+    RenderBufferFormattedView *D3D12Buffer::createBufferFormattedViewRaw(RenderFormat format) {
+        return new D3D12BufferFormattedView(this, format);
     }
 
     void D3D12Buffer::setName(const char *name) {
@@ -2890,8 +2891,8 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderTextureView> D3D12Texture::createTextureView(const RenderTextureViewDesc &desc) const {
-        return std::make_unique<D3D12TextureView>(this, desc);
+    RenderTextureView *D3D12Texture::createTextureViewRaw(const RenderTextureViewDesc &desc) const {
+        return new D3D12TextureView(this, desc);
     }
 
     void D3D12Texture::setName(const char *name) {
@@ -2952,12 +2953,12 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderBuffer> D3D12Pool::createBuffer(const RenderBufferDesc &desc) {
-        return std::make_unique<D3D12Buffer>(device, this, desc);
+    RenderBuffer *D3D12Pool::createBufferRaw(const RenderBufferDesc &desc) {
+        return new D3D12Buffer(device, this, desc);
     }
 
-    std::unique_ptr<RenderTexture> D3D12Pool::createTexture(const RenderTextureDesc &desc) {
-        return std::make_unique<D3D12Texture>(device, this, desc);
+    RenderTexture *D3D12Pool::createTextureRaw(const RenderTextureDesc &desc) {
+        return new D3D12Texture(device, this, desc);
     }
 
     // D3D12Shader
@@ -3893,73 +3894,73 @@ namespace plume {
         release();
     }
 
-    std::unique_ptr<RenderDescriptorSet> D3D12Device::createDescriptorSet(const RenderDescriptorSetDesc &desc) {
-        return std::make_unique<D3D12DescriptorSet>(this, desc);
+    RenderDescriptorSet *D3D12Device::createDescriptorSetRaw(const RenderDescriptorSetDesc &desc) {
+        return new D3D12DescriptorSet(this, desc);
     }
 
-    std::unique_ptr<RenderShader> D3D12Device::createShader(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) {
-        return std::make_unique<D3D12Shader>(this, data, size, entryPointName, format);
+    RenderShader *D3D12Device::createShaderRaw(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) {
+        return new D3D12Shader(this, data, size, entryPointName, format);
     }
 
-    std::unique_ptr<RenderSampler> D3D12Device::createSampler(const RenderSamplerDesc &desc) {
-        return std::make_unique<D3D12Sampler>(this, desc);
+    RenderSampler *D3D12Device::createSamplerRaw(const RenderSamplerDesc &desc) {
+        return new D3D12Sampler(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> D3D12Device::createComputePipeline(const RenderComputePipelineDesc &desc) {
-        return std::make_unique<D3D12ComputePipeline>(this, desc);
+    RenderPipeline *D3D12Device::createComputePipelineRaw(const RenderComputePipelineDesc &desc) {
+        return new D3D12ComputePipeline(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> D3D12Device::createGraphicsPipeline(const RenderGraphicsPipelineDesc &desc) {
-        return std::make_unique<D3D12GraphicsPipeline>(this, desc);
+    RenderPipeline *D3D12Device::createGraphicsPipelineRaw(const RenderGraphicsPipelineDesc &desc) {
+        return new D3D12GraphicsPipeline(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> D3D12Device::createRaytracingPipeline(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) {
-        return std::make_unique<D3D12RaytracingPipeline>(this, desc, previousPipeline);
+    RenderPipeline *D3D12Device::createRaytracingPipelineRaw(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) {
+        return new D3D12RaytracingPipeline(this, desc, previousPipeline);
     }
 
-    std::unique_ptr<RenderCommandQueue> D3D12Device::createCommandQueue(RenderCommandListType type) {
-        return std::make_unique<D3D12CommandQueue>(this, type);
+    RenderCommandQueue *D3D12Device::createCommandQueueRaw(RenderCommandListType type) {
+        return new D3D12CommandQueue(this, type);
     }
     
-    std::unique_ptr<RenderBuffer> D3D12Device::createBuffer(const RenderBufferDesc &desc) {
+    RenderBuffer *D3D12Device::createBufferRaw(const RenderBufferDesc &desc) {
         if ((desc.heapType == RenderHeapType::GPU_UPLOAD) && gpuUploadHeapFallback) {
-            return std::make_unique<D3D12Buffer>(this, customUploadPool.get(), desc);
+            return new D3D12Buffer(this, customUploadPool.get(), desc);
         }
         else {
-            return std::make_unique<D3D12Buffer>(this, nullptr, desc);
+            return new D3D12Buffer(this, nullptr, desc);
         }
     }
 
-    std::unique_ptr<RenderTexture> D3D12Device::createTexture(const RenderTextureDesc &desc) {
-        return std::make_unique<D3D12Texture>(this, nullptr, desc);
+    RenderTexture *D3D12Device::createTextureRaw(const RenderTextureDesc &desc) {
+        return new D3D12Texture(this, nullptr, desc);
     }
 
-    std::unique_ptr<RenderAccelerationStructure> D3D12Device::createAccelerationStructure(const RenderAccelerationStructureDesc &desc) {
-        return std::make_unique<D3D12AccelerationStructure>(this, desc);
+    RenderAccelerationStructure *D3D12Device::createAccelerationStructureRaw(const RenderAccelerationStructureDesc &desc) {
+        return new D3D12AccelerationStructure(this, desc);
     }
 
-    std::unique_ptr<RenderPool> D3D12Device::createPool(const RenderPoolDesc &desc) {
-        return std::make_unique<D3D12Pool>(this, desc, gpuUploadHeapFallback);
+    RenderPool *D3D12Device::createPoolRaw(const RenderPoolDesc &desc) {
+        return new D3D12Pool(this, desc, gpuUploadHeapFallback);
     }
 
-    std::unique_ptr<RenderPipelineLayout> D3D12Device::createPipelineLayout(const RenderPipelineLayoutDesc &desc) {
-        return std::make_unique<D3D12PipelineLayout>(this, desc);
+    RenderPipelineLayout *D3D12Device::createPipelineLayoutRaw(const RenderPipelineLayoutDesc &desc) {
+        return new D3D12PipelineLayout(this, desc);
     }
 
-    std::unique_ptr<RenderCommandFence> D3D12Device::createCommandFence() {
-        return std::make_unique<D3D12CommandFence>(this);
+    RenderCommandFence *D3D12Device::createCommandFenceRaw() {
+        return new D3D12CommandFence(this);
     }
 
-    std::unique_ptr<RenderCommandSemaphore> D3D12Device::createCommandSemaphore() {
-        return std::make_unique<D3D12CommandSemaphore>(this);
+    RenderCommandSemaphore *D3D12Device::createCommandSemaphoreRaw() {
+        return new D3D12CommandSemaphore(this);
     }
 
-    std::unique_ptr<RenderFramebuffer> D3D12Device::createFramebuffer(const RenderFramebufferDesc &desc) {
-        return std::make_unique<D3D12Framebuffer>(this, desc);
+    RenderFramebuffer *D3D12Device::createFramebufferRaw(const RenderFramebufferDesc &desc) {
+        return new D3D12Framebuffer(this, desc);
     }
 
-    std::unique_ptr<RenderQueryPool> D3D12Device::createQueryPool(uint32_t queryCount) {
-        return std::make_unique<D3D12QueryPool>(this, queryCount);
+    RenderQueryPool *D3D12Device::createQueryPoolRaw(uint32_t queryCount) {
+        return new D3D12QueryPool(this, queryCount);
     }
 
     void D3D12Device::setBottomLevelASBuildInfo(RenderBottomLevelASBuildInfo &buildInfo, const RenderBottomLevelASMesh *meshes, uint32_t meshCount, bool preferFastBuild, bool preferFastTrace) {
@@ -4232,9 +4233,9 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderDevice> D3D12Interface::createDevice(const char *preferredDeviceName) {
-        std::unique_ptr<D3D12Device> createdDevice = std::make_unique<D3D12Device>(this, preferredDeviceName);
-        return createdDevice->isValid() ? std::move(createdDevice) : nullptr;
+    RenderDevice *D3D12Interface::createDeviceRaw(const char *preferredDeviceName) {
+        D3D12Device *createdDevice = new D3D12Device(this, preferredDeviceName);
+        return createdDevice->isValid() ? createdDevice : nullptr;
     }
 
     const RenderInterfaceCapabilities &D3D12Interface::getCapabilities() const {
@@ -4256,8 +4257,12 @@ namespace plume {
 
     // Global creation function.
     
+    RenderInterface *CreateD3D12InterfaceRaw() {
+        D3D12Interface *createdInterface = new D3D12Interface();
+        return createdInterface->isValid() ? createdInterface : nullptr;
+    }
+
     std::unique_ptr<RenderInterface> CreateD3D12Interface() {
-        std::unique_ptr<D3D12Interface> createdInterface = std::make_unique<D3D12Interface>();
-        return createdInterface->isValid() ? std::move(createdInterface) : nullptr;
+        return std::unique_ptr<RenderInterface>(CreateD3D12InterfaceRaw());
     }
 };

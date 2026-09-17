@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <cmath>
 #include <climits>
+#include <memory>
 #include <unordered_map>
 
 #if DLSS_ENABLED
@@ -916,8 +917,8 @@ namespace plume {
         vmaUnmapMemory(device->allocator, allocation);
     }
 
-    std::unique_ptr<RenderBufferFormattedView> VulkanBuffer::createBufferFormattedView(RenderFormat format) {
-        return std::make_unique<VulkanBufferFormattedView>(this, format);
+    RenderBufferFormattedView *VulkanBuffer::createBufferFormattedViewRaw(RenderFormat format) {
+        return new VulkanBufferFormattedView(this, format);
     }
 
     void VulkanBuffer::setName(const char *name) {
@@ -1055,8 +1056,8 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderTextureView> VulkanTexture::createTextureView(const RenderTextureViewDesc &desc) const {
-        return std::make_unique<VulkanTextureView>(this, desc);
+    RenderTextureView *VulkanTexture::createTextureViewRaw(const RenderTextureViewDesc &desc) const {
+        return new VulkanTextureView(this, desc);
     }
 
     void VulkanTexture::setName(const char *name) {
@@ -3560,12 +3561,12 @@ namespace plume {
         device->queueFamilies[familyIndex].remove(this);
     }
 
-    std::unique_ptr<RenderCommandList> VulkanCommandQueue::createCommandList() {
-        return std::make_unique<VulkanCommandList>(this);
+    RenderCommandList *VulkanCommandQueue::createCommandListRaw() {
+        return new VulkanCommandList(this);
     }
 
-    std::unique_ptr<RenderSwapChain> VulkanCommandQueue::createSwapChain(const RenderSwapChainDesc &desc) {
-        return std::make_unique<VulkanSwapChain>(this, desc);
+    RenderSwapChain *VulkanCommandQueue::createSwapChainRaw(const RenderSwapChainDesc &desc) {
+        return new VulkanSwapChain(this, desc);
     }
 
     void VulkanCommandQueue::executeCommandLists(const RenderCommandList **commandLists, uint32_t commandListCount, RenderCommandSemaphore **waitSemaphores, uint32_t waitSemaphoreCount, RenderCommandSemaphore **signalSemaphores, uint32_t signalSemaphoreCount, RenderCommandFence *signalFence) {
@@ -3693,12 +3694,12 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderBuffer> VulkanPool::createBuffer(const RenderBufferDesc &desc) {
-        return std::make_unique<VulkanBuffer>(device, this, desc);
+    RenderBuffer *VulkanPool::createBufferRaw(const RenderBufferDesc &desc) {
+        return new VulkanBuffer(device, this, desc);
     }
 
-    std::unique_ptr<RenderTexture> VulkanPool::createTexture(const RenderTextureDesc &desc) {
-        return std::make_unique<VulkanTexture>(device, this, desc);
+    RenderTexture *VulkanPool::createTextureRaw(const RenderTextureDesc &desc) {
+        return new VulkanTexture(device, this, desc);
     }
     
     // VulkanQueueFamily
@@ -4151,7 +4152,7 @@ namespace plume {
         loadStoreOpNoneSupported = supportedOptionalExtensions.find(VK_EXT_LOAD_STORE_OP_NONE_EXTENSION_NAME) != supportedOptionalExtensions.end();
 
         if (!nullDescriptorSupported) {
-            nullBuffer = createBuffer(RenderBufferDesc::DefaultBuffer(16, RenderBufferFlag::VERTEX));
+            nullBuffer = std::unique_ptr<RenderBuffer>(createBufferRaw(RenderBufferDesc::DefaultBuffer(16, RenderBufferFlag::VERTEX)));
         }
     }
 
@@ -4159,68 +4160,68 @@ namespace plume {
         release();
     }
 
-    std::unique_ptr<RenderDescriptorSet> VulkanDevice::createDescriptorSet(const RenderDescriptorSetDesc &desc) {
-        return std::make_unique<VulkanDescriptorSet>(this, desc);
+    RenderDescriptorSet *VulkanDevice::createDescriptorSetRaw(const RenderDescriptorSetDesc &desc) {
+        return new VulkanDescriptorSet(this, desc);
     }
 
-    std::unique_ptr<RenderShader> VulkanDevice::createShader(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) {
-        return std::make_unique<VulkanShader>(this, data, size, entryPointName, format);
+    RenderShader *VulkanDevice::createShaderRaw(const void *data, uint64_t size, const char *entryPointName, RenderShaderFormat format) {
+        return new VulkanShader(this, data, size, entryPointName, format);
     }
 
-    std::unique_ptr<RenderSampler> VulkanDevice::createSampler(const RenderSamplerDesc &desc) {
-        return std::make_unique<VulkanSampler>(this, desc);
+    RenderSampler *VulkanDevice::createSamplerRaw(const RenderSamplerDesc &desc) {
+        return new VulkanSampler(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> VulkanDevice::createComputePipeline(const RenderComputePipelineDesc &desc) {
-        return std::make_unique<VulkanComputePipeline>(this, desc);
+    RenderPipeline *VulkanDevice::createComputePipelineRaw(const RenderComputePipelineDesc &desc) {
+        return new VulkanComputePipeline(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> VulkanDevice::createGraphicsPipeline(const RenderGraphicsPipelineDesc &desc) {
-        return std::make_unique<VulkanGraphicsPipeline>(this, desc);
+    RenderPipeline *VulkanDevice::createGraphicsPipelineRaw(const RenderGraphicsPipelineDesc &desc) {
+        return new VulkanGraphicsPipeline(this, desc);
     }
 
-    std::unique_ptr<RenderPipeline> VulkanDevice::createRaytracingPipeline(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) {
-        return std::make_unique<VulkanRaytracingPipeline>(this, desc, previousPipeline);
+    RenderPipeline *VulkanDevice::createRaytracingPipelineRaw(const RenderRaytracingPipelineDesc &desc, const RenderPipeline *previousPipeline) {
+        return new VulkanRaytracingPipeline(this, desc, previousPipeline);
     }
 
-    std::unique_ptr<RenderCommandQueue> VulkanDevice::createCommandQueue(RenderCommandListType type) {
-        return std::make_unique<VulkanCommandQueue>(this, type);
+    RenderCommandQueue *VulkanDevice::createCommandQueueRaw(RenderCommandListType type) {
+        return new VulkanCommandQueue(this, type);
     }
 
-    std::unique_ptr<RenderBuffer> VulkanDevice::createBuffer(const RenderBufferDesc &desc) {
-        return std::make_unique<VulkanBuffer>(this, nullptr, desc);
+    RenderBuffer *VulkanDevice::createBufferRaw(const RenderBufferDesc &desc) {
+        return new VulkanBuffer(this, nullptr, desc);
     }
 
-    std::unique_ptr<RenderTexture> VulkanDevice::createTexture(const RenderTextureDesc &desc) {
-        return std::make_unique<VulkanTexture>(this, nullptr, desc);
+    RenderTexture *VulkanDevice::createTextureRaw(const RenderTextureDesc &desc) {
+        return new VulkanTexture(this, nullptr, desc);
     }
 
-    std::unique_ptr<RenderAccelerationStructure> VulkanDevice::createAccelerationStructure(const RenderAccelerationStructureDesc &desc) {
-        return std::make_unique<VulkanAccelerationStructure>(this, desc);
+    RenderAccelerationStructure *VulkanDevice::createAccelerationStructureRaw(const RenderAccelerationStructureDesc &desc) {
+        return new VulkanAccelerationStructure(this, desc);
     }
 
-    std::unique_ptr<RenderPool> VulkanDevice::createPool(const RenderPoolDesc &desc) {
-        return std::make_unique<VulkanPool>(this, desc);
+    RenderPool *VulkanDevice::createPoolRaw(const RenderPoolDesc &desc) {
+        return new VulkanPool(this, desc);
     }
 
-    std::unique_ptr<RenderPipelineLayout> VulkanDevice::createPipelineLayout(const RenderPipelineLayoutDesc &desc) {
-        return std::make_unique<VulkanPipelineLayout>(this, desc);
+    RenderPipelineLayout *VulkanDevice::createPipelineLayoutRaw(const RenderPipelineLayoutDesc &desc) {
+        return new VulkanPipelineLayout(this, desc);
     }
 
-    std::unique_ptr<RenderCommandFence> VulkanDevice::createCommandFence() {
-        return std::make_unique<VulkanCommandFence>(this);
+    RenderCommandFence *VulkanDevice::createCommandFenceRaw() {
+        return new VulkanCommandFence(this);
     }
 
-    std::unique_ptr<RenderCommandSemaphore> VulkanDevice::createCommandSemaphore() {
-        return std::make_unique<VulkanCommandSemaphore>(this);
+    RenderCommandSemaphore *VulkanDevice::createCommandSemaphoreRaw() {
+        return new VulkanCommandSemaphore(this);
     }
 
-    std::unique_ptr<RenderFramebuffer> VulkanDevice::createFramebuffer(const RenderFramebufferDesc &desc) {
-        return std::make_unique<VulkanFramebuffer>(this, desc);
+    RenderFramebuffer *VulkanDevice::createFramebufferRaw(const RenderFramebufferDesc &desc) {
+        return new VulkanFramebuffer(this, desc);
     }
 
-    std::unique_ptr<RenderQueryPool> VulkanDevice::createQueryPool(uint32_t queryCount) {
-        return std::make_unique<VulkanQueryPool>(this, queryCount);
+    RenderQueryPool *VulkanDevice::createQueryPoolRaw(uint32_t queryCount) {
+        return new VulkanQueryPool(this, queryCount);
     }
 
     void VulkanDevice::setBottomLevelASBuildInfo(RenderBottomLevelASBuildInfo &buildInfo, const RenderBottomLevelASMesh *meshes, uint32_t meshCount, bool preferFastBuild, bool preferFastTrace) {
@@ -4607,9 +4608,9 @@ namespace plume {
         }
     }
 
-    std::unique_ptr<RenderDevice> VulkanInterface::createDevice(const char *preferredDeviceName) {
-        std::unique_ptr<VulkanDevice> createdDevice = std::make_unique<VulkanDevice>(this, preferredDeviceName);
-        return createdDevice->isValid() ? std::move(createdDevice) : nullptr;
+    RenderDevice *VulkanInterface::createDeviceRaw(const char *preferredDeviceName) {
+        VulkanDevice *createdDevice = new VulkanDevice(this, preferredDeviceName);
+        return createdDevice->isValid() ? createdDevice : nullptr;
     }
 
     const RenderInterfaceCapabilities &VulkanInterface::getCapabilities() const {
@@ -4632,14 +4633,22 @@ namespace plume {
     // Global creation function.
 
 #if PLUME_SDL_VULKAN_ENABLED
+    RenderInterface *CreateVulkanInterfaceRaw(RenderWindow sdlWindow) {
+        VulkanInterface *createdInterface = new VulkanInterface(sdlWindow);
+        return createdInterface->isValid() ? createdInterface : nullptr;
+    }
+
     std::unique_ptr<RenderInterface> CreateVulkanInterface(RenderWindow sdlWindow) {
-        std::unique_ptr<VulkanInterface> createdInterface = std::make_unique<VulkanInterface>(sdlWindow);
-        return createdInterface->isValid() ? std::move(createdInterface) : nullptr;
+        return std::unique_ptr<RenderInterface>(CreateVulkanInterfaceRaw(sdlWindow));
     }
 #else
+    RenderInterface *CreateVulkanInterfaceRaw() {
+        VulkanInterface *createdInterface = new VulkanInterface();
+        return createdInterface->isValid() ? createdInterface : nullptr;
+    }
+
     std::unique_ptr<RenderInterface> CreateVulkanInterface() {
-        std::unique_ptr<VulkanInterface> createdInterface = std::make_unique<VulkanInterface>();
-        return createdInterface->isValid() ? std::move(createdInterface) : nullptr;
+        return std::unique_ptr<RenderInterface>(CreateVulkanInterfaceRaw());
     }
 #endif
 };
