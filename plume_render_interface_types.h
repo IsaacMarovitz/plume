@@ -31,6 +31,20 @@
 #include <SDL_vulkan.h>
 #endif
 
+#if defined(PLUME_SHARED)
+#   if defined(_WIN64)
+#       ifdef PLUME_EXPORTS
+#           define PLUME_API __declspec(dllexport)
+#       else
+#           define PLUME_API __declspec(dllimport)
+#       endif
+#   else
+#       define PLUME_API __attribute__((visibility("default")))
+#   endif
+#else
+#   define PLUME_API
+#endif
+
 namespace plume {
 #if defined(_WIN64)
     // Native HWND handle to the target window.

@@ -414,6 +414,10 @@ namespace plume {
     extern void TestDraw();
     extern void TestResize();
     extern void TestShutdown();
+
+    extern "C" PLUME_API RenderInterface *CreateD3D12InterfaceRaw();
+    extern "C" PLUME_API RenderInterface *CreateMetalInterfaceRaw();
+    extern "C" PLUME_API RenderInterface *CreateVulkanInterfaceRaw();
 };
 
 #include "plume_render_interface_builders.h"

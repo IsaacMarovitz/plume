@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.20)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_OBJCXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN ON)
 
 if(APPLE AND NOT CMAKE_OSX_DEPLOYMENT_TARGET)
     # 10.15 because of our use of supportsFamily()
@@ -75,7 +77,12 @@ elseif(WIN32)
 endif()
 
 # Create target
-add_library(plume STATIC ${PLUME_SOURCES})
+add_library(plume ${PLUME_SOURCES})
+
+if(BUILD_SHARED_LIBS)
+    target_compile_definitions(plume PUBLIC PLUME_SHARED)
+    target_compile_definitions(plume PRIVATE PLUME_EXPORTS)
+endif()
 
 # Include directories
 target_include_directories(plume PUBLIC
@@ -114,6 +121,16 @@ if(APPLE)
 
     target_include_directories(plume PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}/contrib/metal-cpp
+    )
+
+    target_link_libraries(plume PUBLIC
+        "-framework Metal"
+        "-framework Foundation"
+        "-framework QuartzCore"
+        "-framework AppKit"
+        "-framework IOKit"
+        "-framework CoreFoundation"
+        objc
     )
 endif()
 
